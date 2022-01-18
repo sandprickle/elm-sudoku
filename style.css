@@ -1,0 +1,14 @@
+.puzzle-grid {
+  @apply m-16 border-collapse text-3xl;
+}
+
+.cell {
+  @apply h-12 w-12 border-2 border-gray-400;
+}
+.cell.filled {
+  @apply flex items-center justify-center;
+}
+
+.puzzle-grid td.selected {
+  @apply bg-yellow-200;
+}
