@@ -1,8 +1,11 @@
-module Main exposing (..)
+module Main exposing (main, parseRow, puzzleFromString)
 
-import Browser
-import Html exposing (Html, div, span, table, tbody, td, text, tr)
-import Html.Attributes exposing (..)
+import Array exposing (Array)
+import Browser exposing (Document)
+import Html exposing (..)
+import Html.Attributes exposing (class, classList)
+import Html.Events exposing (onClick)
+import Value exposing (Value)
 
 
 
@@ -11,165 +14,138 @@ import Html.Attributes exposing (..)
 
 main : Program () Model Msg
 main =
-    Browser.element
-        { init = init
+    Browser.document
+        { init = \_ -> ( initialModel, Cmd.none )
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
 
 
 
--- Model
+-- MODEL
+
+
+type alias Grid a =
+    List (List a)
+
+
+type alias Coord =
+    { x : Int, y : Int }
+
+
+gridMap : (a -> b) -> Grid a -> Grid b
+gridMap fn grid =
+    List.map (List.map fn) grid
 
 
 type alias Model =
-    { solution : Maybe Puzzle
-    , currentPuzzle : Puzzle
+    { initialPuzzle : Grid Value
+    , currentPuzzle : Grid Value
+    , selectedCell : Maybe Coord
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( { solution = Nothing
-      , currentPuzzle =
-            [ [ Blank, Four, Blank, Two, Seven, Blank, Blank, Blank, Blank ]
-            , [ Six, Blank, Blank, Blank, Three, Blank, Blank, Blank, Blank ]
-            , [ Blank, Blank, Blank, Five, Six, Blank, Blank, Seven, Two ]
-            , [ Blank, Blank, Blank, Blank, Five, Blank, One, Blank, Seven ]
-            , [ Blank, Blank, Blank, Three, Blank, Blank, Blank, Blank, Blank ]
-            , [ Nine, Blank, Five, Blank, Four, Blank, Blank, Blank, Blank ]
-            , [ Blank, Blank, Blank, Four, Blank, Blank, Blank, Nine, Blank ]
-            , [ Blank, Seven, Blank, Blank, One, Blank, Three, Blank, Blank ]
-            , [ Blank, Blank, Eight, Blank, Blank, Blank, Two, One, Four ]
-            ]
-      }
-    , Cmd.none
-    )
+initialModel : Model
+initialModel =
+    let
+        puzzle =
+            puzzleFromString puzzleStringA
+    in
+    { initialPuzzle = puzzle
+    , currentPuzzle = puzzle
+    , selectedCell = Nothing
+    }
 
 
 
--- Update
+-- UPDATE
+
+
+type Msg
+    = ClickedCell { x : Int, y : Int }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        ClickedCell coord ->
+            ( { model | selectedCell = Just coord }, Cmd.none )
 
 
 
--- SUBSCRIPTIONS
+-- VIEW
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
-
-
-
--- View
-
-
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-    div []
-        [ viewPuzzle model.currentPuzzle ]
-
-
-
--- Helpers & Types
-
-
-viewValue : Value -> Html Msg
-viewValue value =
-    td [ class "border-2 border-gray-500 w-12 h-12" ]
-        [ case value of
-            Blank ->
-                text ""
-
-            _ ->
-                div [ class "w-full h-full flex items-center justify-center text-xl" ]
-                    [ text (valueToString value)
-                    ]
-        ]
-
-
-viewRow : List Value -> Html Msg
-viewRow row =
-    tr [] (List.map viewValue row)
-
-
-viewPuzzle : Puzzle -> Html Msg
-viewPuzzle puzzle =
-    table
-        [ class "" ]
-        [ tbody
-            []
-            (List.map viewRow puzzle)
-        ]
-
-
-valueToString : Value -> String
-valueToString value =
-    case value of
-        Blank ->
-            ""
-
-        One ->
-            "1"
-
-        Two ->
-            "2"
-
-        Three ->
-            "3"
-
-        Four ->
-            "4"
-
-        Five ->
-            "5"
-
-        Six ->
-            "6"
-
-        Seven ->
-            "7"
-
-        Eight ->
-            "8"
-
-        Nine ->
-            "9"
-
-
-type Msg
-    = Change String
-
-
-type Value
-    = Blank
-    | One
-    | Two
-    | Three
-    | Four
-    | Five
-    | Six
-    | Seven
-    | Eight
-    | Nine
-
-
-type alias Cell =
-    { value : Value
-    , possible : List Value
-    , snyder : List Value
+    { title = "Sudoku"
+    , body = [ viewPuzzle model.selectedCell model.currentPuzzle ]
     }
 
 
-type alias Grid t =
-    List (List t)
+viewPuzzle : Maybe Coord -> Grid Value -> Html Msg
+viewPuzzle selectedCell puzzle =
+    let
+        selectedCoords =
+            case selectedCell of
+                Just coord ->
+                    coord
+
+                Nothing ->
+                    { x = -1, y = -1 }
+
+        viewValue : Int -> Int -> Value -> Html Msg
+        viewValue x y value =
+            let
+                selected =
+                    x == selectedCoords.x && y == selectedCoords.y
+            in
+            td []
+                [ div
+                    [ classList
+                        [ ( "value selected", selected )
+                        , ( "value", not selected )
+                        ]
+                    , onClick (ClickedCell (Coord x y))
+                    ]
+                    [ text <| Value.toString value ]
+                ]
+
+        viewRow y row =
+            tr [] <| List.indexedMap (viewValue y) row
+    in
+    Html.table [ class "puzzle" ] <|
+        List.indexedMap viewRow puzzle
 
 
-type alias Puzzle =
-    Grid Value
+
+-- MISC HELPERS
+
+
+puzzleFromString : String -> Grid Value
+puzzleFromString input =
+    String.split "\n" input
+        |> List.map parseRow
+
+
+parseRow : String -> List Value
+parseRow rowStr =
+    rowStr
+        |> String.trimLeft
+        |> String.left 9
+        |> String.toList
+        |> List.map Value.fromChar
+
+
+puzzleStringA : String
+puzzleStringA =
+    """.2...97..
+..96...41
+.7483..2.
+.5...3.7.
+.817.6...
+2..5..136
+56.9.8.1.
+9....73.4
+..2....5."""

@@ -1,14 +1,41 @@
-.puzzle-grid {
-  @apply m-16 border-collapse text-3xl;
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
 }
 
-.cell {
-  @apply h-12 w-12 border-2 border-gray-400;
-}
-.cell.filled {
-  @apply flex items-center justify-center;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  --border-thin: 1px solid #aaa;
+  --border-thick: 2px solid #444;
+  --bg-selected: #fffebb;
 }
 
-.puzzle-grid td.selected {
-  @apply bg-yellow-200;
+.puzzle {
+  border-collapse: collapse;
+  border: var(--border-thick);
+  margin: 2rem auto;
+}
+.puzzle td {
+  border: var(--border-thin);
+}
+.puzzle td:nth-of-type(3n) {
+  border-right: var(--border-thick);
+}
+.puzzle tr:nth-of-type(3n) {
+  border-bottom: var(--border-thick);
+}
+
+.value {
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  justify-content: center;
+  align-items: center;
+  font-size: 2em;
+}
+.value.selected {
+  background-color: var(--bg-selected);
 }
