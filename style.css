@@ -7,10 +7,13 @@
 body {
   margin: 0;
   padding: 0;
+  background-color: rgb(17 24 39);
+  color: rgb(203 213 225);
   font-family: sans-serif;
-  --border-thin: 1px solid #aaa;
-  --border-thick: 2px solid #444;
-  --bg-selected: #fffebb;
+  --border-thin: 1px solid rgb(55 65 81);
+  --border-thick: 2px solid rgb(107 114 128);
+  --border-selected: 2px solid rgb(22 78 99);
+  --bg-selected: rgb(31 41 55);
 }
 
 .puzzle-input {
@@ -42,4 +45,10 @@ body {
 }
 .value.selected {
   background-color: var(--bg-selected);
+  border: var(--border-selected);
+}
+
+textarea {
+  background: rgb(31 41 55);
+  color: rgb(148 163 184);
 }
