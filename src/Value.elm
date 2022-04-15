@@ -3,7 +3,6 @@ module Value exposing
     , fromChar
     , fromInt
     , fromString
-    , matches
     , toInt
     , toString
     )
@@ -11,11 +10,6 @@ module Value exposing
 
 type Value
     = Value Int
-
-
-matches : Value -> Value -> Bool
-matches (Value a) (Value b) =
-    a == b
 
 
 toString : Value -> String
