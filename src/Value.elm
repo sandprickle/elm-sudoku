@@ -11,38 +11,31 @@ module Value exposing
 
 type Value
     = Value Int
-    | Blank
 
 
 matches : Value -> Value -> Bool
-matches val1 val2 =
-    case ( val1, val2 ) of
-        ( Value a, Value b ) ->
-            a == b
-
-        _ ->
-            False
+matches (Value a) (Value b) =
+    a == b
 
 
 toString : Value -> String
-toString val =
-    case val of
-        Value int ->
-            String.fromInt int
+toString (Value int) =
+    if int == 0 then
+        ""
 
-        Blank ->
-            ""
+    else
+        String.fromInt int
 
 
 fromString : String -> Value
 fromString str =
     if String.isEmpty str then
-        Blank
+        Value 0
 
     else
         case String.left 1 str of
             "0" ->
-                Blank
+                Value 0
 
             "1" ->
                 Value 1
@@ -72,25 +65,17 @@ fromString str =
                 Value 9
 
             _ ->
-                Blank
+                Value 0
 
 
 toInt : Value -> Int
-toInt val =
-    case val of
-        Value int ->
-            int
-
-        Blank ->
-            0
+toInt (Value int) =
+    int
 
 
 fromInt : Int -> Maybe Value
 fromInt int =
-    if int == 0 then
-        Just Blank
-
-    else if int >= 1 && int <= 9 then
+    if int >= 0 && int <= 9 then
         Just (Value int)
 
     else
@@ -101,7 +86,7 @@ fromChar : Char -> Value
 fromChar char =
     case char of
         '0' ->
-            Blank
+            Value 0
 
         '1' ->
             Value 1
@@ -131,4 +116,4 @@ fromChar char =
             Value 9
 
         _ ->
-            Blank
+            Value 0
