@@ -13,10 +13,14 @@ body {
   --bg-selected: #fffebb;
 }
 
+.puzzle-input {
+  margin: 2rem;
+}
+
 .puzzle {
   border-collapse: collapse;
   border: var(--border-thick);
-  margin: 2rem auto;
+  margin: 2rem;
 }
 .puzzle td {
   border: var(--border-thin);

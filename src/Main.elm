@@ -3,8 +3,9 @@ module Main exposing (main, parseRow, puzzleFromString)
 import Array exposing (Array)
 import Browser exposing (Document)
 import Html exposing (..)
-import Html.Attributes exposing (class, classList)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, classList, cols, rows)
+import Html.Events exposing (onClick, onInput)
+import Tailwind.Utilities exposing (aspect_h_9)
 import Value exposing (Value)
 
 
@@ -40,21 +41,17 @@ gridMap fn grid =
 
 
 type alias Model =
-    { initialPuzzle : Grid Value
-    , currentPuzzle : Grid Value
+    { currentPuzzle : Grid Value
     , selectedCell : Maybe Coord
+    , puzzleInputMode : Bool
     }
 
 
 initialModel : Model
 initialModel =
-    let
-        puzzle =
-            puzzleFromString puzzleStringA
-    in
-    { initialPuzzle = puzzle
-    , currentPuzzle = puzzle
+    { currentPuzzle = puzzleFromString ""
     , selectedCell = Nothing
+    , puzzleInputMode = True
     }
 
 
@@ -64,6 +61,7 @@ initialModel =
 
 type Msg
     = ClickedCell { x : Int, y : Int }
+    | UpdatedPuzzleInput String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -71,6 +69,9 @@ update msg model =
     case msg of
         ClickedCell coord ->
             ( { model | selectedCell = Just coord }, Cmd.none )
+
+        UpdatedPuzzleInput input ->
+            ( { model | currentPuzzle = puzzleFromString input }, Cmd.none )
 
 
 
@@ -80,8 +81,19 @@ update msg model =
 view : Model -> Document Msg
 view model =
     { title = "Sudoku"
-    , body = [ viewPuzzle model.selectedCell model.currentPuzzle ]
+    , body =
+        [ viewPuzzle model.selectedCell model.currentPuzzle
+        , viewPuzzleInput
+        ]
     }
+
+
+viewPuzzleInput : Html Msg
+viewPuzzleInput =
+    div [ class "puzzle-input" ]
+        [ h3 [] [ text "Puzzle Input" ]
+        , textarea [ rows 9, cols 9, onInput UpdatedPuzzleInput ] []
+        ]
 
 
 viewPuzzle : Maybe Coord -> Grid Value -> Html Msg
@@ -125,27 +137,31 @@ viewPuzzle selectedCell puzzle =
 
 puzzleFromString : String -> Grid Value
 puzzleFromString input =
-    String.split "\n" input
-        |> List.map parseRow
+    let
+        blankRow =
+            "........."
+
+        rows =
+            input |> String.split "\n" |> List.take 9
+
+        numRows =
+            List.length rows
+
+        grid =
+            if numRows < 9 then
+                List.append rows
+                    (List.repeat (9 - numRows) blankRow)
+
+            else
+                rows
+    in
+    List.map parseRow grid
 
 
 parseRow : String -> List Value
-parseRow rowStr =
-    rowStr
-        |> String.trimLeft
+parseRow input =
+    input
         |> String.left 9
+        |> String.padRight 9 '0'
         |> String.toList
         |> List.map Value.fromChar
-
-
-puzzleStringA : String
-puzzleStringA =
-    """.2...97..
-..96...41
-.7483..2.
-.5...3.7.
-.817.6...
-2..5..136
-56.9.8.1.
-9....73.4
-..2....5."""
