@@ -1,11 +1,9 @@
-module Main exposing (main, puzzleFromString, rowFromString)
+module Main exposing (main)
 
-import Array exposing (Array)
 import Browser exposing (Document)
 import Html exposing (..)
-import Html.Attributes exposing (class, classList, cols, rows)
-import Html.Events exposing (onClick, onInput)
-import Tailwind.Utilities exposing (aspect_h_9)
+import Html.Attributes exposing (class, classList)
+import Html.Events exposing (onClick)
 import Value exposing (Value)
 
 
@@ -121,7 +119,7 @@ viewPuzzle selectedCell puzzle =
                     ]
                     [ case cell of
                         Filled value ->
-                            text <| Value.toString value
+                            text (Value.toString value)
 
                         Empty ->
                             text ""
