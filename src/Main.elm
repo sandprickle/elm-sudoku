@@ -80,7 +80,7 @@ update msg model =
 
 view : Model -> Document Msg
 view model =
-    { title = "Sudoku"
+    { title = "Sudoku Trainer"
     , body =
         [ viewSidebar
         , div [ class "main" ] [ viewPuzzle model.selectedCell model.currentPuzzle ]
@@ -88,6 +88,7 @@ view model =
     }
 
 
+viewSidebar : Html Msg
 viewSidebar =
     div [ class "sidebar" ]
         [ h1 [] [ text "Sudoku Trainer" ]
