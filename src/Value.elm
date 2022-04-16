@@ -14,52 +14,41 @@ type Value
 
 toString : Value -> String
 toString (Value int) =
-    if int == 0 then
-        ""
-
-    else
-        String.fromInt int
+    String.fromInt int
 
 
-fromString : String -> Value
+fromString : String -> Maybe Value
 fromString str =
-    if String.isEmpty str then
-        Value 0
+    case str of
+        "1" ->
+            Just (Value 1)
 
-    else
-        case String.left 1 str of
-            "0" ->
-                Value 0
+        "2" ->
+            Just (Value 2)
 
-            "1" ->
-                Value 1
+        "3" ->
+            Just (Value 3)
 
-            "2" ->
-                Value 2
+        "4" ->
+            Just (Value 4)
 
-            "3" ->
-                Value 3
+        "5" ->
+            Just (Value 5)
 
-            "4" ->
-                Value 4
+        "6" ->
+            Just (Value 6)
 
-            "5" ->
-                Value 5
+        "7" ->
+            Just (Value 7)
 
-            "6" ->
-                Value 6
+        "8" ->
+            Just (Value 8)
 
-            "7" ->
-                Value 7
+        "9" ->
+            Just (Value 9)
 
-            "8" ->
-                Value 8
-
-            "9" ->
-                Value 9
-
-            _ ->
-                Value 0
+        _ ->
+            Nothing
 
 
 toInt : Value -> Int
@@ -69,45 +58,42 @@ toInt (Value int) =
 
 fromInt : Int -> Maybe Value
 fromInt int =
-    if int >= 0 && int <= 9 then
+    if int >= 1 && int <= 9 then
         Just (Value int)
 
     else
         Nothing
 
 
-fromChar : Char -> Value
+fromChar : Char -> Maybe Value
 fromChar char =
     case char of
-        '0' ->
-            Value 0
-
         '1' ->
-            Value 1
+            Just (Value 1)
 
         '2' ->
-            Value 2
+            Just (Value 2)
 
         '3' ->
-            Value 3
+            Just (Value 3)
 
         '4' ->
-            Value 4
+            Just (Value 4)
 
         '5' ->
-            Value 5
+            Just (Value 5)
 
         '6' ->
-            Value 6
+            Just (Value 6)
 
         '7' ->
-            Value 7
+            Just (Value 7)
 
         '8' ->
-            Value 8
+            Just (Value 8)
 
         '9' ->
-            Value 9
+            Just (Value 9)
 
         _ ->
-            Value 0
+            Nothing
