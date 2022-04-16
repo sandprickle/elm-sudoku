@@ -1,4 +1,4 @@
-module Main exposing (main, parseRow, puzzleFromString)
+module Main exposing (main, puzzleFromString, rowFromString)
 
 import Array exposing (Array)
 import Browser exposing (Document)
@@ -27,31 +27,34 @@ main =
 -- MODEL
 
 
-type alias Grid a =
-    List (List a)
+type alias Grid =
+    List (List Cell)
+
+
+type Cell
+    = Filled Value
+    | Empty
 
 
 type alias Coord =
     { x : Int, y : Int }
 
 
-gridMap : (a -> b) -> Grid a -> Grid b
-gridMap fn grid =
-    List.map (List.map fn) grid
-
-
 type alias Model =
-    { currentPuzzle : Grid Value
+    { currentPuzzle : Grid
     , selectedCell : Maybe Coord
-    , puzzleInputMode : Bool
     }
+
+
+initialPuzzle : String
+initialPuzzle =
+    ".7..18.94\n.4.....67\n2......1.\n....59..6\n....4....\n3..18....\n.9......1\n71.....8.\n68.53..7."
 
 
 initialModel : Model
 initialModel =
-    { currentPuzzle = puzzleFromString ""
+    { currentPuzzle = puzzleFromString initialPuzzle
     , selectedCell = Nothing
-    , puzzleInputMode = True
     }
 
 
@@ -61,7 +64,6 @@ initialModel =
 
 type Msg
     = ClickedCell { x : Int, y : Int }
-    | UpdatedPuzzleInput String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -69,9 +71,6 @@ update msg model =
     case msg of
         ClickedCell coord ->
             ( { model | selectedCell = Just coord }, Cmd.none )
-
-        UpdatedPuzzleInput input ->
-            ( { model | currentPuzzle = puzzleFromString input }, Cmd.none )
 
 
 
@@ -92,19 +91,10 @@ viewSidebar : Html Msg
 viewSidebar =
     div [ class "sidebar" ]
         [ h1 [] [ text "Sudoku Trainer" ]
-        , viewPuzzleInput
         ]
 
 
-viewPuzzleInput : Html Msg
-viewPuzzleInput =
-    div [ class "puzzle-input" ]
-        [ h3 [] [ text "Puzzle Input" ]
-        , textarea [ rows 9, cols 9, onInput UpdatedPuzzleInput ] []
-        ]
-
-
-viewPuzzle : Maybe Coord -> Grid Value -> Html Msg
+viewPuzzle : Maybe Coord -> Grid -> Html Msg
 viewPuzzle selectedCell puzzle =
     let
         selectedCoords =
@@ -115,8 +105,8 @@ viewPuzzle selectedCell puzzle =
                 Nothing ->
                     { x = -1, y = -1 }
 
-        viewValue : Int -> Int -> Value -> Html Msg
-        viewValue x y value =
+        viewCell : Int -> Int -> Cell -> Html Msg
+        viewCell x y cell =
             let
                 selected =
                     x == selectedCoords.x && y == selectedCoords.y
@@ -129,11 +119,17 @@ viewPuzzle selectedCell puzzle =
                         ]
                     , onClick (ClickedCell (Coord x y))
                     ]
-                    [ text <| Value.toString value ]
+                    [ case cell of
+                        Filled value ->
+                            text <| Value.toString value
+
+                        Empty ->
+                            text ""
+                    ]
                 ]
 
         viewRow y row =
-            tr [] <| List.indexedMap (viewValue y) row
+            tr [] <| List.indexedMap (viewCell y) row
     in
     Html.table [ class "puzzle" ] <|
         List.indexedMap viewRow puzzle
@@ -143,7 +139,7 @@ viewPuzzle selectedCell puzzle =
 -- MISC HELPERS
 
 
-puzzleFromString : String -> Grid Value
+puzzleFromString : String -> Grid
 puzzleFromString input =
     let
         blankRow =
@@ -163,13 +159,23 @@ puzzleFromString input =
             else
                 rows
     in
-    List.map parseRow grid
+    List.map rowFromString grid
 
 
-parseRow : String -> List Value
-parseRow input =
+rowFromString : String -> List Cell
+rowFromString input =
     input
         |> String.left 9
         |> String.padRight 9 '0'
         |> String.toList
-        |> List.map Value.fromChar
+        |> List.map cellFromChar
+
+
+cellFromChar : Char -> Cell
+cellFromChar char =
+    case Value.fromChar char of
+        Just value ->
+            Filled value
+
+        Nothing ->
+            Empty
