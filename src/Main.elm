@@ -82,10 +82,17 @@ view : Model -> Document Msg
 view model =
     { title = "Sudoku"
     , body =
-        [ viewPuzzle model.selectedCell model.currentPuzzle
-        , viewPuzzleInput
+        [ viewSidebar
+        , div [ class "main" ] [ viewPuzzle model.selectedCell model.currentPuzzle ]
         ]
     }
+
+
+viewSidebar =
+    div [ class "sidebar" ]
+        [ h1 [] [ text "Sudoku Trainer" ]
+        , viewPuzzleInput
+        ]
 
 
 viewPuzzleInput : Html Msg
