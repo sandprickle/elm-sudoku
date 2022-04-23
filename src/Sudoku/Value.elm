@@ -1,9 +1,8 @@
-module Value exposing
+module Sudoku.Value exposing
     ( Value
     , fromChar
     , fromInt
     , fromString
-    , toInt
     , toString
     )
 
@@ -49,11 +48,6 @@ fromString str =
 
         _ ->
             Nothing
-
-
-toInt : Value -> Int
-toInt (Value int) =
-    int
 
 
 fromInt : Int -> Maybe Value
