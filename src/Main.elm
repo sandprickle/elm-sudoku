@@ -4,6 +4,7 @@ import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
+import Sudoku.Grid as Grid exposing (Cell(..), Coord, Grid, fromString, getByCoord, toRowsList)
 import Sudoku.Value as Value exposing (Value)
 
 
@@ -25,19 +26,6 @@ main =
 -- MODEL
 
 
-type alias Grid =
-    List (List Cell)
-
-
-type Cell
-    = Filled Value
-    | Empty
-
-
-type alias Coord =
-    { x : Int, y : Int }
-
-
 type alias Model =
     { currentPuzzle : Grid
     , selectedCell : Maybe Coord
@@ -46,12 +34,12 @@ type alias Model =
 
 initialPuzzle : String
 initialPuzzle =
-    ".7..18.94\n.4.....67\n2......1.\n....59..6\n....4....\n3..18....\n.9......1\n71.....8.\n68.53..7."
+    ".7..18.94.4.....672......1.....59..6....4....3..18.....9......171.....8.68.53..7."
 
 
 initialModel : Model
 initialModel =
-    { currentPuzzle = puzzleFromString initialPuzzle
+    { currentPuzzle = Grid.fromString initialPuzzle
     , selectedCell = Nothing
     }
 
@@ -130,50 +118,4 @@ viewPuzzle selectedCell puzzle =
             tr [] <| List.indexedMap (viewCell y) row
     in
     Html.table [ class "puzzle" ] <|
-        List.indexedMap viewRow puzzle
-
-
-
--- MISC HELPERS
-
-
-puzzleFromString : String -> Grid
-puzzleFromString input =
-    let
-        blankRow =
-            "........."
-
-        rows =
-            input |> String.split "\n" |> List.take 9
-
-        numRows =
-            List.length rows
-
-        grid =
-            if numRows < 9 then
-                List.append rows
-                    (List.repeat (9 - numRows) blankRow)
-
-            else
-                rows
-    in
-    List.map rowFromString grid
-
-
-rowFromString : String -> List Cell
-rowFromString input =
-    input
-        |> String.left 9
-        |> String.padRight 9 '0'
-        |> String.toList
-        |> List.map cellFromChar
-
-
-cellFromChar : Char -> Cell
-cellFromChar char =
-    case Value.fromChar char of
-        Just value ->
-            Filled value
-
-        Nothing ->
-            Empty
+        List.indexedMap viewRow (Grid.toRowsList puzzle)
