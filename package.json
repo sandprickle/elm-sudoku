@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "elm-review": "^2.7.1",
     "elm-tooling": "^1.7.0",
     "vite": "^2.7.12",
     "vite-plugin-elm": "^2.5.1"
