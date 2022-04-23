@@ -4,7 +4,7 @@ import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import Value exposing (Value)
+import Sudoku.Value as Value exposing (Value)
 
 
 
