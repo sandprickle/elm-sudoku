@@ -1,4 +1,4 @@
-module Sudoku.Grid exposing (Cell(..), Coord, Grid, cellFromChar, fromString, getByCoord, getByIndex, toRowsList)
+module Sudoku.Grid exposing (Cell(..), Coord, Grid, cellFromChar, fromString, getByCoord, getByIndex, setByCoord, toRowsList)
 
 import Array exposing (Array)
 import List.Extra
@@ -31,6 +31,18 @@ getByCoord coord (Grid grid) =
             coordToIndex coord
     in
     Array.get index grid |> Maybe.withDefault Empty
+
+
+setByCoord : Coord -> Grid -> Char -> Grid
+setByCoord coord (Grid grid) char =
+    let
+        index =
+            coordToIndex coord
+
+        newCell =
+            cellFromChar char
+    in
+    Array.set index newCell grid |> Grid
 
 
 getByIndex : Int -> Grid -> Cell
