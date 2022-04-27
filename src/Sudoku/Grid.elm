@@ -1,23 +1,19 @@
-module Sudoku.Grid exposing (Cell(..), Coord, Grid, cellFromChar, fromString, getByCoord, getByIndex, setByCoord, toRowsList)
+module Sudoku.Grid exposing
+    ( Coord
+    , Grid
+    , fromString
+    , getByCoord
+    , getByIndex
+    , isLegal
+    , setByCoord
+    , toRowsList
+    )
 
 import Array exposing (Array)
+import Array.Extra
 import List.Extra
+import Sudoku.Cell as Cell exposing (Cell(..), fromChar, fromString, isFilled)
 import Sudoku.Value as Value exposing (Value)
-
-
-type Cell
-    = Empty
-    | Filled Value
-
-
-cellFromChar : Char -> Cell
-cellFromChar char =
-    case Value.fromChar char of
-        Just value ->
-            Filled value
-
-        Nothing ->
-            Empty
 
 
 type Grid
@@ -26,23 +22,12 @@ type Grid
 
 getByCoord : Coord -> Grid -> Cell
 getByCoord coord (Grid grid) =
-    let
-        index =
-            coordToIndex coord
-    in
-    Array.get index grid |> Maybe.withDefault Empty
+    Array.get (coordToIndex coord) grid |> Maybe.withDefault Empty
 
 
-setByCoord : Coord -> Grid -> Char -> Grid
-setByCoord coord (Grid grid) char =
-    let
-        index =
-            coordToIndex coord
-
-        newCell =
-            cellFromChar char
-    in
-    Array.set index newCell grid |> Grid
+setByCoord : Coord -> Grid -> Cell -> Grid
+setByCoord coord (Grid grid) newCell =
+    Array.set (coordToIndex coord) newCell grid |> Grid
 
 
 getByIndex : Int -> Grid -> Cell
@@ -118,6 +103,21 @@ toRowsList (Grid grid) =
     List.Extra.groupsOf 9 (Array.toList grid)
 
 
+toRows : Grid -> Array (Array Cell)
+toRows grid =
+    Debug.todo "toRows"
+
+
+toCols : Grid -> Array (Array Cell)
+toCols grid =
+    Debug.todo "toCols"
+
+
+toBoxes : Grid -> Array (Array Cell)
+toBoxes grid =
+    Debug.todo "toBoxes"
+
+
 
 -- TYPE CONVERSIONS
 
@@ -156,6 +156,33 @@ fromString str =
         |> String.left 81
         |> String.padLeft 81 '.'
         |> String.toList
-        |> List.map cellFromChar
+        |> List.map Cell.fromChar
         |> Array.fromList
         |> Grid
+
+
+
+-- SUDOKU FUNCTIONS
+
+
+isLegal : Grid -> Bool
+isLegal grid =
+    let
+        rowsOk =
+            Array.Extra.all noDuplicates (toRows grid)
+
+        colsOk =
+            Array.Extra.all noDuplicates (toCols grid)
+
+        boxesOk =
+            Array.Extra.all noDuplicates (toBoxes grid)
+    in
+    rowsOk && colsOk && boxesOk
+
+
+noDuplicates : Array Cell -> Bool
+noDuplicates cells =
+    cells
+        |> Array.filter Cell.isFilled
+        |> Array.toList
+        |> List.Extra.allDifferent

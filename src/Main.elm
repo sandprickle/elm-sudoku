@@ -5,10 +5,10 @@ import Html exposing (..)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Keyboard exposing (RawKey)
+import Sudoku.Cell as Cell exposing (Cell(..))
 import Sudoku.Grid as Grid
     exposing
-        ( Cell(..)
-        , Coord
+        ( Coord
         , Grid
         , fromString
         , getByCoord
@@ -39,6 +39,15 @@ main =
 type alias Model =
     { currentPuzzle : Grid
     , selectedCell : Maybe Coord
+    , puzzleStatus : String
+    }
+
+
+initialModel : Model
+initialModel =
+    { currentPuzzle = Grid.fromString initialPuzzle
+    , selectedCell = Nothing
+    , puzzleStatus = "Not checked"
     }
 
 
@@ -47,19 +56,13 @@ initialPuzzle =
     ".7..18.94.4.....672......1.....59..6....4....3..18.....9......171.....8.68.53..7."
 
 
-initialModel : Model
-initialModel =
-    { currentPuzzle = Grid.fromString initialPuzzle
-    , selectedCell = Nothing
-    }
-
-
 
 -- UPDATE
 
 
 type Msg
     = ClickedCell { x : Int, y : Int }
+    | ClickedCheckPuzzle
     | KeyUp RawKey
 
 
@@ -69,20 +72,25 @@ update msg model =
         ClickedCell coord ->
             ( { model | selectedCell = Just coord }, Cmd.none )
 
+        ClickedCheckPuzzle ->
+            let
+                puzzleStatus =
+                    "fake checked"
+            in
+            ( { model | puzzleStatus = puzzleStatus }, Cmd.none )
+
         KeyUp key ->
             let
-                keyChar : Char
-                keyChar =
+                keyStr : String
+                keyStr =
                     case Keyboard.characterKeyOriginal key of
                         Just (Keyboard.Character str) ->
-                            String.uncons str
-                                |> Maybe.withDefault ( '.', "" )
-                                |> Tuple.first
+                            str
 
                         _ ->
-                            '.'
+                            ""
             in
-            if List.member keyChar valueKeys then
+            if List.member keyStr valueKeys then
                 case model.selectedCell of
                     Just coord ->
                         ( { model
@@ -90,7 +98,7 @@ update msg model =
                                 Grid.setByCoord
                                     coord
                                     model.currentPuzzle
-                                    keyChar
+                                    (Cell.fromString keyStr)
                           }
                         , Cmd.none
                         )
@@ -102,9 +110,9 @@ update msg model =
                 ( model, Cmd.none )
 
 
-valueKeys : List Char
+valueKeys : List String
 valueKeys =
-    [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
+    [ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
 
 
@@ -115,16 +123,18 @@ view : Model -> Document Msg
 view model =
     { title = "Sudoku Trainer"
     , body =
-        [ viewSidebar
+        [ viewSidebar model.puzzleStatus
         , div [ class "main" ] [ viewPuzzle model.selectedCell model.currentPuzzle ]
         ]
     }
 
 
-viewSidebar : Html Msg
-viewSidebar =
+viewSidebar : String -> Html Msg
+viewSidebar puzzleStatus =
     div [ class "sidebar" ]
         [ h1 [] [ text "Sudoku Trainer" ]
+        , button [ onClick ClickedCheckPuzzle ] [ text "Check Puzzle" ]
+        , p [ class "puzzle-status" ] [ text puzzleStatus ]
         ]
 
 
