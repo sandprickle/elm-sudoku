@@ -13,7 +13,7 @@ import Sudoku.Grid as Grid
         , fromString
         , getByCoord
         , setByCoord
-        , toRowsList
+        , toRows
         )
 import Sudoku.Value as Value exposing (Value)
 
@@ -75,7 +75,11 @@ update msg model =
         ClickedCheckPuzzle ->
             let
                 puzzleStatus =
-                    "fake checked"
+                    if Grid.isLegal model.currentPuzzle then
+                        "Puzzle is Legal"
+
+                    else
+                        "THAT'S ILLEGAL YOU DIMWIT!"
             in
             ( { model | puzzleStatus = puzzleStatus }, Cmd.none )
 
@@ -112,7 +116,7 @@ update msg model =
 
 valueKeys : List String
 valueKeys =
-    [ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
+    [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
 
 
@@ -176,7 +180,7 @@ viewPuzzle selectedCell puzzle =
             tr [] <| List.indexedMap (viewCell y) row
     in
     Html.table [ class "puzzle" ] <|
-        List.indexedMap viewRow (Grid.toRowsList puzzle)
+        List.indexedMap viewRow (Grid.toRows puzzle)
 
 
 
