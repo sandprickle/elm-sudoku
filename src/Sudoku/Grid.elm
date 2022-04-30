@@ -18,8 +18,8 @@ import Sudoku.Cell as Cell exposing (Cell(..), fromChar, fromString, isFilled)
 import Sudoku.Value as Value exposing (Value)
 
 
-
--- Grid Type
+type alias Coord =
+    { x : Int, y : Int }
 
 
 type Grid
@@ -40,10 +40,6 @@ getByIndex : Int -> Grid -> Cell
 getByIndex index (Grid grid) =
     Array.get (normalizeIndex index) grid
         |> Maybe.withDefault Empty
-
-
-type alias Coord =
-    { x : Int, y : Int }
 
 
 indexToCoord : Int -> Coord
