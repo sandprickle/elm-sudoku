@@ -140,8 +140,8 @@ normalizeCoord coord =
 
 
 toRowsList : Grid -> List (List Cell)
-toRowsList (Grid grid) =
-    List.Extra.groupsOf 9 (Array.toList grid)
+toRowsList grid =
+    List.map (\n -> getRow n grid) (List.range 0 8)
 
 
 fromString : String -> Grid
