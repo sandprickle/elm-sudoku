@@ -26,20 +26,8 @@ type Grid
     = Grid (Array Cell)
 
 
-getByCoord : Coord -> Grid -> Cell
-getByCoord coord (Grid grid) =
-    Array.get (coordToIndex coord) grid |> Maybe.withDefault Empty
 
-
-setByCoord : Coord -> Grid -> Cell -> Grid
-setByCoord coord (Grid grid) newCell =
-    Array.set (coordToIndex coord) newCell grid |> Grid
-
-
-getByIndex : Int -> Grid -> Cell
-getByIndex index (Grid grid) =
-    Array.get (normalizeIndex index) grid
-        |> Maybe.withDefault Empty
+-- Internal Helpers
 
 
 indexToCoord : Int -> Coord
@@ -100,28 +88,24 @@ normalizeCoord coord =
     { x = x, y = y }
 
 
-
--- Grid Conversions
-
-
-toRows : Grid -> Array (Array Cell)
-toRows grid =
-    Debug.todo "toRows"
+getByCoord : Coord -> Grid -> Cell
+getByCoord coord (Grid grid) =
+    Array.get (coordToIndex coord) grid |> Maybe.withDefault Empty
 
 
-toCols : Grid -> Array (Array Cell)
-toCols grid =
-    Debug.todo "toCols"
+setByCoord : Coord -> Grid -> Cell -> Grid
+setByCoord coord (Grid grid) newCell =
+    Array.set (coordToIndex coord) newCell grid |> Grid
 
 
-toBoxes : Grid -> Array (Array Cell)
-toBoxes grid =
-    Debug.todo "toBoxes"
+getByIndex : Int -> Grid -> Cell
+getByIndex index (Grid grid) =
+    Array.get (normalizeIndex index) grid
+        |> Maybe.withDefault Empty
 
 
-toRowsList : Grid -> List (List Cell)
-toRowsList grid =
-    List.map (\n -> getRow n grid) (List.range 0 8)
+
+-- Conversions
 
 
 fromString : String -> Grid
@@ -133,6 +117,15 @@ fromString str =
         |> List.map Cell.fromChar
         |> Array.fromList
         |> Grid
+
+
+toRowsList : Grid -> List (List Cell)
+toRowsList grid =
+    List.map (\n -> getRow n grid) (List.range 0 8)
+
+
+
+-- Row/Col/Box Helpers
 
 
 getRow : Int -> Grid -> List Cell
