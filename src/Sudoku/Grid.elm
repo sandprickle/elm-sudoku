@@ -1,8 +1,26 @@
-module Sudoku.Grid exposing (Cell(..), Coord, Grid, cellFromChar, fromString, getByCoord, getByIndex, setByCoord, toRowsList)
+module Sudoku.Grid exposing
+    ( Cell(..)
+    , Coord
+    , Grid
+    , cellFromChar
+    , fromString
+    , getBox
+    , getByCoord
+    , getByIndex
+    , getCol
+    , getRow
+    , setByCoord
+    , toRowsList
+    )
 
 import Array exposing (Array)
+import Keyboard exposing (Key(..))
 import List.Extra
 import Sudoku.Value as Value exposing (Value)
+
+
+
+-- Cell Type
 
 
 type Cell
@@ -18,6 +36,10 @@ cellFromChar char =
 
         Nothing ->
             Empty
+
+
+
+-- Grid Type
 
 
 type Grid
@@ -113,41 +135,13 @@ normalizeCoord coord =
     { x = x, y = y }
 
 
+
+-- Grid Conversions
+
+
 toRowsList : Grid -> List (List Cell)
 toRowsList (Grid grid) =
     List.Extra.groupsOf 9 (Array.toList grid)
-
-
-
--- TYPE CONVERSIONS
-
-
-fromArray : Array Cell -> Maybe Grid
-fromArray input =
-    if Array.length input == 81 then
-        Just (Grid input)
-
-    else
-        Nothing
-
-
-toArray : Grid -> Array Cell
-toArray (Grid array) =
-    array
-
-
-fromList : List Cell -> Maybe Grid
-fromList input =
-    if List.length input == 81 then
-        Just (Grid (Array.fromList input))
-
-    else
-        Nothing
-
-
-toList : Grid -> List Cell
-toList (Grid array) =
-    Array.toList array
 
 
 fromString : String -> Grid
@@ -159,3 +153,45 @@ fromString str =
         |> List.map cellFromChar
         |> Array.fromList
         |> Grid
+
+
+getRow : Int -> Grid -> List Cell
+getRow rowNum grid =
+    let
+        getCell i =
+            getByCoord { x = rowNum, y = i } grid
+    in
+    List.map getCell (List.range 0 8)
+
+
+getCol : Int -> Grid -> List Cell
+getCol colNum grid =
+    let
+        getCell i =
+            getByCoord { x = i, y = colNum } grid
+    in
+    List.map getCell (List.range 0 8)
+
+
+getBox : Int -> Grid -> List Cell
+getBox boxNum grid =
+    let
+        boxRow =
+            boxNum // 3
+
+        boxCol =
+            modBy 3 boxNum
+
+        xCoords =
+            List.map (\n -> (3 * boxRow) + n) (List.range 0 2)
+
+        yCoords =
+            List.map (\n -> (3 * boxCol) + n) (List.range 0 2)
+
+        getCell x y =
+            getByCoord { x = x, y = y } grid
+
+        getCellsInRow xCoord =
+            List.map (getCell xCoord) yCoords
+    in
+    List.map getCellsInRow xCoords |> List.concat
