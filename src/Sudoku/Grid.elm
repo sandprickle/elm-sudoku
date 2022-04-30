@@ -7,13 +7,14 @@ module Sudoku.Grid exposing
     , getByIndex
     , getCol
     , getRow
+    , isLegal
     , setByCoord
-    , toRowsList
+    , toRows
     )
 
 import Array exposing (Array)
 import Array.Extra
-import List.Extra
+import List.Extra exposing (allDifferent)
 import Sudoku.Cell as Cell exposing (Cell(..), fromChar, fromString, isFilled)
 import Sudoku.Value as Value exposing (Value)
 
@@ -119,9 +120,19 @@ fromString str =
         |> Grid
 
 
-toRowsList : Grid -> List (List Cell)
-toRowsList grid =
+toRows : Grid -> List (List Cell)
+toRows grid =
     List.map (\n -> getRow n grid) (List.range 0 8)
+
+
+toCols : Grid -> List (List Cell)
+toCols grid =
+    List.map (\n -> getCol n grid) (List.range 0 8)
+
+
+toBoxes : Grid -> List (List Cell)
+toBoxes grid =
+    List.map (\n -> getBox n grid) (List.range 0 8)
 
 
 
@@ -168,3 +179,40 @@ getBox boxNum grid =
             List.map (getCell xCoord) yCoords
     in
     List.map getCellsInRow xCoords |> List.concat
+
+
+
+-- Constraints
+
+
+isLegal : Grid -> Bool
+isLegal grid =
+    let
+        rowsOk =
+            grid
+                |> toRows
+                |> List.map checkGroup
+                |> List.member False
+                |> not
+
+        colsOk =
+            grid
+                |> toCols
+                |> List.map checkGroup
+                |> List.member False
+                |> not
+
+        boxesOk =
+            grid
+                |> toBoxes
+                |> List.map checkGroup
+                |> List.member False
+                |> not
+
+        checkGroup : List Cell -> Bool
+        checkGroup group =
+            group
+                |> List.filter Cell.isFilled
+                |> allDifferent
+    in
+    rowsOk && colsOk && boxesOk

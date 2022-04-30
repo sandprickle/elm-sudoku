@@ -10,7 +10,8 @@ import Sudoku.Grid as Grid
         , getBox
         , getCol
         , getRow
-        , toRowsList
+        , isLegal
+        , toRows
         )
 import Test exposing (..)
 
@@ -23,6 +24,12 @@ testPuzzle : Grid
 testPuzzle =
     Grid.fromString
         "....3.....2..1..4...7..9..6.1357..2.....8.5....6.....8........913..48...2649....."
+
+
+testPuzzleIllegal : Grid
+testPuzzleIllegal =
+    Grid.fromString
+        "...33.....2..1..4...7..9..6.1357..2.....8.5....6.....8........913..48...2649....."
 
 
 testRows : List (List Cell)
@@ -70,12 +77,12 @@ testBoxes =
         ]
 
 
-toRowsListTest : Test
-toRowsListTest =
-    test "toRowsList works w/ valid input" <|
+toRowsTest : Test
+toRowsTest =
+    test "toRows works w/ valid input" <|
         \_ ->
             testPuzzle
-                |> toRowsList
+                |> toRows
                 |> Expect.equalLists testRows
 
 
@@ -110,3 +117,15 @@ getBoxTest =
                     List.map (\n -> getBox n grid) (List.range 0 8)
             in
             Expect.equalLists testBoxes (allBoxes testPuzzle)
+
+
+isLegalTest : Test
+isLegalTest =
+    describe "Grid.isLegal"
+        [ test "true given valid puzzle" <|
+            \_ ->
+                Expect.equal True (isLegal testPuzzle)
+        , test "false given invalid puzzle" <|
+            \_ ->
+                Expect.equal False (isLegal testPuzzleIllegal)
+        ]
