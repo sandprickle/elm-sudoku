@@ -4,6 +4,7 @@ import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
+import Html.Lazy exposing (lazy2)
 import Keyboard exposing (RawKey)
 import Sudoku.Cell as Cell exposing (Cell(..))
 import Sudoku.Grid as Grid
@@ -219,44 +220,59 @@ viewSidebar puzzleStatus =
 
 
 viewPuzzle : Maybe Coord -> Grid -> Html Msg
-viewPuzzle selectedCell puzzle =
+viewPuzzle selectedCoord puzzle =
     let
-        selectedCoords =
-            case selectedCell of
-                Just coord ->
-                    coord
-
-                Nothing ->
-                    { x = -1, y = -1 }
-
-        viewCell : Int -> Int -> Cell -> Html Msg
-        viewCell x y cell =
-            let
-                selected =
-                    x == selectedCoords.x && y == selectedCoords.y
-            in
-            td []
-                [ div
-                    [ classList
-                        [ ( "value selected", selected )
-                        , ( "value", not selected )
-                        ]
-                    , onClick (ClickedCell (Coord x y))
-                    ]
-                    [ case cell of
-                        Filled value ->
-                            text (Value.toString value)
-
-                        Empty ->
-                            text ""
-                    ]
-                ]
-
-        viewRow y row =
-            tr [] <| List.indexedMap (viewCell y) row
+        viewRow : Int -> List Cell -> Html Msg
+        viewRow x row =
+            tr [] <|
+                List.indexedMap
+                    (\y ->
+                        lazy2 viewCell
+                            { currentCoord = { x = x, y = y }
+                            , selectedCoord = selectedCoord
+                            }
+                    )
+                    row
     in
     Html.table [ class "puzzle" ] <|
         List.indexedMap viewRow (Grid.toRows puzzle)
+
+
+viewCell :
+    { currentCoord : Coord
+    , selectedCoord : Maybe Coord
+    }
+    -> Cell
+    -> Html Msg
+viewCell { currentCoord, selectedCoord } cell =
+    let
+        { x, y } =
+            currentCoord
+
+        selected =
+            case selectedCoord of
+                Just coord ->
+                    x == coord.x && y == coord.y
+
+                Nothing ->
+                    False
+    in
+    td []
+        [ div
+            [ classList
+                [ ( "value selected", selected )
+                , ( "value", not selected )
+                ]
+            , onClick (ClickedCell (Coord x y))
+            ]
+            [ case cell of
+                Filled value ->
+                    text (Value.toString value)
+
+                Empty ->
+                    text ""
+            ]
+        ]
 
 
 
