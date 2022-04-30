@@ -4,7 +4,7 @@ import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy2)
+import Html.Lazy exposing (lazy, lazy2)
 import Keyboard exposing (RawKey)
 import Sudoku.Cell as Cell exposing (Cell(..))
 import Sudoku.Grid as Grid
@@ -204,7 +204,7 @@ view : Model -> Document Msg
 view model =
     { title = "Sudoku Trainer"
     , body =
-        [ viewSidebar model.puzzleStatus
+        [lazy viewSidebar model.puzzleStatus
         , div [ class "main" ] [ viewPuzzle model.selectedCell model.currentPuzzle ]
         ]
     }
