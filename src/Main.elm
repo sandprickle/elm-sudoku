@@ -43,17 +43,17 @@ type alias Model =
     }
 
 
+initialPuzzle : String
+initialPuzzle =
+    "....3.....2..1..4...7..9..6.1357..2.....8.5....6.....8........913..48...2649....."
+
+
 initialModel : Model
 initialModel =
     { currentPuzzle = Grid.fromString initialPuzzle
     , selectedCell = Nothing
     , puzzleStatus = "Not checked"
     }
-
-
-initialPuzzle : String
-initialPuzzle =
-    ".7..18.94.4.....672......1.....59..6....4....3..18.....9......171.....8.68.53..7."
 
 
 

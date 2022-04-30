@@ -2,9 +2,11 @@ module Sudoku.Grid exposing
     ( Coord
     , Grid
     , fromString
+    , getBox
     , getByCoord
     , getByIndex
-    , isLegal
+    , getCol
+    , getRow
     , setByCoord
     , toRowsList
     )
@@ -14,6 +16,10 @@ import Array.Extra
 import List.Extra
 import Sudoku.Cell as Cell exposing (Cell(..), fromChar, fromString, isFilled)
 import Sudoku.Value as Value exposing (Value)
+
+
+
+-- Grid Type
 
 
 type Grid
@@ -98,9 +104,8 @@ normalizeCoord coord =
     { x = x, y = y }
 
 
-toRowsList : Grid -> List (List Cell)
-toRowsList (Grid grid) =
-    List.Extra.groupsOf 9 (Array.toList grid)
+
+-- Grid Conversions
 
 
 toRows : Grid -> Array (Array Cell)
@@ -118,36 +123,9 @@ toBoxes grid =
     Debug.todo "toBoxes"
 
 
-
--- TYPE CONVERSIONS
-
-
-fromArray : Array Cell -> Maybe Grid
-fromArray input =
-    if Array.length input == 81 then
-        Just (Grid input)
-
-    else
-        Nothing
-
-
-toArray : Grid -> Array Cell
-toArray (Grid array) =
-    array
-
-
-fromList : List Cell -> Maybe Grid
-fromList input =
-    if List.length input == 81 then
-        Just (Grid (Array.fromList input))
-
-    else
-        Nothing
-
-
-toList : Grid -> List Cell
-toList (Grid array) =
-    Array.toList array
+toRowsList : Grid -> List (List Cell)
+toRowsList grid =
+    List.map (\n -> getRow n grid) (List.range 0 8)
 
 
 fromString : String -> Grid
@@ -161,28 +139,43 @@ fromString str =
         |> Grid
 
 
-
--- SUDOKU FUNCTIONS
-
-
-isLegal : Grid -> Bool
-isLegal grid =
+getRow : Int -> Grid -> List Cell
+getRow rowNum grid =
     let
-        rowsOk =
-            Array.Extra.all noDuplicates (toRows grid)
-
-        colsOk =
-            Array.Extra.all noDuplicates (toCols grid)
-
-        boxesOk =
-            Array.Extra.all noDuplicates (toBoxes grid)
+        getCell i =
+            getByCoord { x = rowNum, y = i } grid
     in
-    rowsOk && colsOk && boxesOk
+    List.map getCell (List.range 0 8)
 
 
-noDuplicates : Array Cell -> Bool
-noDuplicates cells =
-    cells
-        |> Array.filter Cell.isFilled
-        |> Array.toList
-        |> List.Extra.allDifferent
+getCol : Int -> Grid -> List Cell
+getCol colNum grid =
+    let
+        getCell i =
+            getByCoord { x = i, y = colNum } grid
+    in
+    List.map getCell (List.range 0 8)
+
+
+getBox : Int -> Grid -> List Cell
+getBox boxNum grid =
+    let
+        boxRow =
+            boxNum // 3
+
+        boxCol =
+            modBy 3 boxNum
+
+        xCoords =
+            List.map (\n -> (3 * boxRow) + n) (List.range 0 2)
+
+        yCoords =
+            List.map (\n -> (3 * boxCol) + n) (List.range 0 2)
+
+        getCell x y =
+            getByCoord { x = x, y = y } grid
+
+        getCellsInRow xCoord =
+            List.map (getCell xCoord) yCoords
+    in
+    List.map getCellsInRow xCoords |> List.concat
