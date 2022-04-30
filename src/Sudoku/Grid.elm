@@ -13,7 +13,6 @@ module Sudoku.Grid exposing
     )
 
 import Array exposing (Array)
-import Array.Extra
 import List.Extra exposing (allDifferent)
 import Sudoku.Cell as Cell exposing (Cell(..), fromChar, fromString, isFilled)
 import Sudoku.Value as Value exposing (Value)
