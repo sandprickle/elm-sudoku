@@ -204,7 +204,7 @@ view : Model -> Document Msg
 view model =
     { title = "Sudoku Trainer"
     , body =
-        [lazy viewSidebar model.puzzleStatus
+        [ lazy viewSidebar model.puzzleStatus
         , div [ class "main" ] [ viewPuzzle model.selectedCell model.currentPuzzle ]
         ]
     }
