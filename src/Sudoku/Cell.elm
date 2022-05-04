@@ -1,4 +1,13 @@
-module Sudoku.Cell exposing (Cell, fromChar, fromString, getValue, isFilled, toString)
+module Sudoku.Cell exposing
+    ( Cell
+    , fromChar
+    , fromString
+    , getPossible
+    , getValue
+    , isEmpty
+    , isFilled
+    , toString
+    )
 
 import Sudoku.Value as Value exposing (Value)
 
@@ -80,3 +89,13 @@ getValue cell =
 
         Empty _ ->
             Nothing
+
+
+getPossible : Cell -> List Value
+getPossible cell =
+    case cell of
+        Empty values ->
+            values
+
+        Filled value ->
+            [ value ]
