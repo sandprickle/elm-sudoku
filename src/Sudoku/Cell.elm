@@ -4,8 +4,22 @@ import Sudoku.Value as Value exposing (Value)
 
 
 type Cell
-    = Empty
+    = Empty (List Value)
     | Filled Value
+
+
+allPossibilities : List Value
+allPossibilities =
+    [ Value.one
+    , Value.two
+    , Value.three
+    , Value.four
+    , Value.five
+    , Value.six
+    , Value.seven
+    , Value.eight
+    , Value.nine
+    ]
 
 
 fromChar : Char -> Cell
@@ -15,7 +29,7 @@ fromChar char =
             Filled value
 
         Nothing ->
-            Empty
+            Empty allPossibilities
 
 
 fromString : String -> Cell
@@ -25,7 +39,7 @@ fromString str =
             Filled value
 
         Nothing ->
-            Empty
+            Empty allPossibilities
 
 
 isFilled : Cell -> Bool
@@ -34,7 +48,7 @@ isFilled cell =
         Filled _ ->
             True
 
-        Empty ->
+        Empty _ ->
             False
 
 
@@ -44,14 +58,14 @@ isEmpty cell =
         Filled _ ->
             False
 
-        Empty ->
+        Empty _ ->
             True
 
 
 toString : Cell -> String
 toString cell =
     case cell of
-        Empty ->
+        Empty _ ->
             ""
 
         Filled value ->
@@ -64,5 +78,5 @@ getValue cell =
         Filled value ->
             Just value
 
-        Empty ->
+        Empty _ ->
             Nothing
