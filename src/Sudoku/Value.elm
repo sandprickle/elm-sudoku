@@ -1,9 +1,18 @@
 module Sudoku.Value exposing
     ( Value
+    , eight
+    , five
+    , four
     , fromChar
     , fromInt
     , fromString
+    , nine
+    , one
+    , seven
+    , six
+    , three
     , toString
+    , two
     )
 
 
@@ -91,3 +100,52 @@ fromChar char =
 
         _ ->
             Nothing
+
+
+
+-- Hardcoded Values
+
+
+one : Value
+one =
+    Value 1
+
+
+two : Value
+two =
+    Value 2
+
+
+three : Value
+three =
+    Value 3
+
+
+four : Value
+four =
+    Value 4
+
+
+five : Value
+five =
+    Value 5
+
+
+six : Value
+six =
+    Value 6
+
+
+seven : Value
+seven =
+    Value 7
+
+
+eight : Value
+eight =
+    Value 8
+
+
+nine : Value
+nine =
+    Value 9
