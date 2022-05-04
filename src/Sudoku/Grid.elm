@@ -14,7 +14,7 @@ module Sudoku.Grid exposing
 
 import Array exposing (Array)
 import List.Extra exposing (allDifferent)
-import Sudoku.Cell as Cell exposing (Cell(..), fromChar, fromString, isFilled)
+import Sudoku.Cell as Cell exposing (Cell, fromChar, fromString, isFilled)
 import Sudoku.Value as Value exposing (Value)
 
 
@@ -90,7 +90,7 @@ normalizeCoord coord =
 
 getByCoord : Coord -> Grid -> Cell
 getByCoord coord (Grid grid) =
-    Array.get (coordToIndex coord) grid |> Maybe.withDefault Empty
+    Array.get (coordToIndex coord) grid |> Maybe.withDefault (Cell.fromString "")
 
 
 setByCoord : Coord -> Grid -> Cell -> Grid
@@ -101,7 +101,7 @@ setByCoord coord (Grid grid) newCell =
 getByIndex : Int -> Grid -> Cell
 getByIndex index (Grid grid) =
     Array.get (normalizeIndex index) grid
-        |> Maybe.withDefault Empty
+        |> Maybe.withDefault (Cell.fromString "")
 
 
 

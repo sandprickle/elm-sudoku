@@ -265,13 +265,7 @@ viewCell { currentCoord, selectedCoord } cell =
                 ]
             , onClick (ClickedCell (Coord x y))
             ]
-            [ case cell of
-                Filled value ->
-                    text (Value.toString value)
-
-                Empty ->
-                    text ""
-            ]
+            [ text (Cell.toString cell) ]
         ]
 
 

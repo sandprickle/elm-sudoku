@@ -1,4 +1,4 @@
-module Sudoku.Cell exposing (Cell(..), fromChar, fromString, isFilled)
+module Sudoku.Cell exposing (Cell, fromChar, fromString, getValue, isFilled, toString)
 
 import Sudoku.Value as Value exposing (Value)
 
@@ -36,3 +36,33 @@ isFilled cell =
 
         Empty ->
             False
+
+
+isEmpty : Cell -> Bool
+isEmpty cell =
+    case cell of
+        Filled _ ->
+            False
+
+        Empty ->
+            True
+
+
+toString : Cell -> String
+toString cell =
+    case cell of
+        Empty ->
+            ""
+
+        Filled value ->
+            Value.toString value
+
+
+getValue : Cell -> Maybe Value
+getValue cell =
+    case cell of
+        Filled value ->
+            Just value
+
+        Empty ->
+            Nothing
