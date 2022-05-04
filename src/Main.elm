@@ -6,7 +6,7 @@ import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2)
 import Keyboard exposing (RawKey)
-import Sudoku.Cell as Cell exposing (Cell(..))
+import Sudoku.Cell as Cell exposing (Cell)
 import Sudoku.Grid as Grid
     exposing
         ( Coord
