@@ -5,6 +5,7 @@ module Sudoku.Cell exposing
     , fromPossibleValues
     , fromString
     , getPossible
+    , getPossibleInts
     , getValue
     , isEmpty
     , isFilled
@@ -106,6 +107,16 @@ getPossible cell =
 
         Filled _ ->
             Nothing
+
+
+getPossibleInts : Cell -> List Int
+getPossibleInts cell =
+    case cell of
+        Empty values ->
+            List.map Value.toInt values
+
+        Filled value ->
+            [ Value.toInt value ]
 
 
 empty : Cell

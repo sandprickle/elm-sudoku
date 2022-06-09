@@ -8,12 +8,19 @@ import Sudoku.Grid as Grid
     exposing
         ( Coord
         , Grid
+        , boxCoords
+        , colCoords
         , getBox
+        , getByCoord
         , getCol
         , getRow
         , isLegal
+        , pruneAll
         , pruneCells
         , removeFixed
+        , rowCoords
+        , toBoxes
+        , toCols
         , toRows
         )
 import Sudoku.Value as Value exposing (Value)
@@ -88,6 +95,15 @@ toRowsTest =
             testPuzzle
                 |> toRows
                 |> Expect.equalLists testRows
+
+
+toColsTest : Test
+toColsTest =
+    test "toCols works w/ valid input" <|
+        \_ ->
+            testPuzzle
+                |> toCols
+                |> Expect.equalLists testCols
 
 
 getRowTest : Test
@@ -188,4 +204,32 @@ pruneCellsTest =
                 initialCells
                     |> Grid.pruneCells
                     |> Expect.equal expectedCells
+        ]
+
+
+pruneAllTest : Test
+pruneAllTest =
+    let
+        prunedGrid =
+            pruneAll testPuzzle
+    in
+    describe "pruneAll"
+        [ test "Row 1 col 2 has correct possibilities" <|
+            \_ ->
+                prunedGrid
+                    |> getByCoord { x = 1, y = 0 }
+                    |> Cell.getPossibleInts
+                    |> Expect.equal [ 4, 5, 8, 9 ]
+        , test "Row 7 col 3 has correct possibilities" <|
+            \_ ->
+                prunedGrid
+                    |> getByCoord { x = 2, y = 6 }
+                    |> Cell.getPossibleInts
+                    |> Expect.equal [ 5, 8 ]
+        , test "Row 9 col 5 has correct possibilities" <|
+            \_ ->
+                prunedGrid
+                    |> getByCoord { x = 4, y = 8 }
+                    |> Cell.getPossibleInts
+                    |> Expect.equal [ 5 ]
         ]

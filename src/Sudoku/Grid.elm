@@ -1,6 +1,8 @@
 module Sudoku.Grid exposing
     ( Coord
     , Grid
+    , boxCoords
+    , colCoords
     , fromString
     , getBox
     , getByCoord
@@ -14,7 +16,10 @@ module Sudoku.Grid exposing
     , pruneCols
     , pruneRows
     , removeFixed
+    , rowCoords
     , setByCoord
+    , toBoxes
+    , toCols
     , toRows
     )
 
@@ -111,7 +116,7 @@ rowCoords : Int -> List Coord
 rowCoords rowNum =
     let
         getCoord i =
-            { x = rowNum, y = i }
+            { x = i, y = rowNum }
     in
     List.map getCoord (List.range 0 8)
 
@@ -120,7 +125,7 @@ colCoords : Int -> List Coord
 colCoords colNum =
     let
         getCoord i =
-            { x = i, y = colNum }
+            { x = colNum, y = i }
     in
     List.map getCoord (List.range 0 8)
 
@@ -134,19 +139,19 @@ boxCoords boxNum =
         boxCol =
             modBy 3 boxNum
 
-        xCoords =
+        yCoords =
             List.map (\n -> (3 * boxRow) + n) (List.range 0 2)
 
-        yCoords =
+        xCoords =
             List.map (\n -> (3 * boxCol) + n) (List.range 0 2)
 
-        getCoord x y =
+        getCoord y x =
             { x = x, y = y }
 
-        coordsInRow xCoord =
-            List.map (getCoord xCoord) yCoords
+        coordsInRow yCoord =
+            List.map (getCoord yCoord) xCoords
     in
-    List.map coordsInRow xCoords |> List.concat
+    List.map coordsInRow yCoords |> List.concat
 
 
 
@@ -278,6 +283,7 @@ indexToCoord input =
         index =
             normalizeIndex input
     in
+    -- this might be wrong!
     { x = index // 9
     , y = remainderBy 9 index
     }
@@ -289,7 +295,7 @@ coordToIndex coord =
         { x, y } =
             normalizeCoord coord
     in
-    (x * 9) + y
+    (y * 9) + x
 
 
 normalizeIndex : Int -> Int

@@ -11,6 +11,7 @@ module Sudoku.Value exposing
     , seven
     , six
     , three
+    , toInt
     , toString
     , two
     )
@@ -18,6 +19,11 @@ module Sudoku.Value exposing
 
 type Value
     = Value Int
+
+
+toInt : Value -> Int
+toInt (Value int) =
+    int
 
 
 toString : Value -> String
