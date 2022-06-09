@@ -2,7 +2,8 @@ module GridTests exposing (..)
 
 import Array
 import Expect exposing (Expectation)
-import Sudoku.Cell as Cell exposing (Cell(..))
+import Html.Lazy exposing (lazy7)
+import Sudoku.Cell as Cell exposing (Cell)
 import Sudoku.Grid as Grid
     exposing
         ( Coord
@@ -11,8 +12,11 @@ import Sudoku.Grid as Grid
         , getCol
         , getRow
         , isLegal
+        , pruneCells
+        , removeFixed
         , toRows
         )
+import Sudoku.Value as Value exposing (Value)
 import Test exposing (..)
 
 
@@ -128,4 +132,60 @@ isLegalTest =
         , test "false given invalid puzzle" <|
             \_ ->
                 Expect.equal False (isLegal testPuzzleIllegal)
+        ]
+
+
+removeFixedTest : Test
+removeFixedTest =
+    test "Removes fixed values from list of possible values" <|
+        \_ ->
+            let
+                fixed =
+                    List.filterMap Value.fromInt [ 1, 3, 5 ]
+
+                possible =
+                    List.filterMap Value.fromInt [ 1, 2, 3, 5, 7, 9 ]
+
+                expected =
+                    List.filterMap Value.fromInt [ 2, 7, 9 ]
+            in
+            removeFixed fixed possible |> Expect.equal expected
+
+
+pruneCellsTest : Test
+pruneCellsTest =
+    let
+        expectedPossible =
+            List.filterMap Value.fromInt [ 2, 3, 4, 5, 7 ]
+
+        initialCells =
+            [ '1', '.', '.', '8', '6', '9', '.', '.', '.' ]
+                |> List.map Cell.fromChar
+
+        expectedCells =
+            [ Cell.fromChar '1'
+            , Cell.fromPossibleValues expectedPossible
+            , Cell.fromPossibleValues expectedPossible
+            , Cell.fromChar '8'
+            , Cell.fromChar '6'
+            , Cell.fromChar '9'
+            , Cell.fromPossibleValues expectedPossible
+            , Cell.fromPossibleValues expectedPossible
+            , Cell.fromPossibleValues expectedPossible
+            ]
+
+        prunedCells =
+            pruneCells initialCells
+    in
+    describe "pruneCells"
+        [ test "Result is same length as input" <|
+            \_ ->
+                Expect.equal
+                    (List.length expectedCells)
+                    (List.length prunedCells)
+        , test "Result contains expected Cell values" <|
+            \_ ->
+                initialCells
+                    |> Grid.pruneCells
+                    |> Expect.equal expectedCells
         ]

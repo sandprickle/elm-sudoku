@@ -1,6 +1,8 @@
 module Sudoku.Cell exposing
     ( Cell
+    , empty
     , fromChar
+    , fromPossibleValues
     , fromString
     , getPossible
     , getValue
@@ -51,6 +53,11 @@ fromString str =
             Empty allPossibilities
 
 
+fromPossibleValues : List Value -> Cell
+fromPossibleValues values =
+    Empty values
+
+
 isFilled : Cell -> Bool
 isFilled cell =
     case cell of
@@ -91,11 +98,16 @@ getValue cell =
             Nothing
 
 
-getPossible : Cell -> List Value
+getPossible : Cell -> Maybe (List Value)
 getPossible cell =
     case cell of
         Empty values ->
-            values
+            Just values
 
-        Filled value ->
-            [ value ]
+        Filled _ ->
+            Nothing
+
+
+empty : Cell
+empty =
+    Empty allPossibilities
