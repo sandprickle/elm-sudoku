@@ -162,24 +162,6 @@ navKeys =
 
 moveSelectionLeft : Coord -> Coord
 moveSelectionLeft { x, y } =
-    if y == 0 then
-        { x = x, y = 8 }
-
-    else
-        { x = x, y = y - 1 }
-
-
-moveSelectionRight : Coord -> Coord
-moveSelectionRight { x, y } =
-    if y == 8 then
-        { x = x, y = 0 }
-
-    else
-        { x = x, y = y + 1 }
-
-
-moveSelectionUp : Coord -> Coord
-moveSelectionUp { x, y } =
     if x == 0 then
         { x = 8, y = y }
 
@@ -187,13 +169,31 @@ moveSelectionUp { x, y } =
         { x = x - 1, y = y }
 
 
-moveSelectionDown : Coord -> Coord
-moveSelectionDown { x, y } =
+moveSelectionRight : Coord -> Coord
+moveSelectionRight { x, y } =
     if x == 8 then
         { x = 0, y = y }
 
     else
         { x = x + 1, y = y }
+
+
+moveSelectionUp : Coord -> Coord
+moveSelectionUp { x, y } =
+    if y == 0 then
+        { x = x, y = 8 }
+
+    else
+        { x = x, y = y - 1 }
+
+
+moveSelectionDown : Coord -> Coord
+moveSelectionDown { x, y } =
+    if y == 8 then
+        { x = x, y = 0 }
+
+    else
+        { x = x, y = y + 1 }
 
 
 
@@ -204,18 +204,47 @@ view : Model -> Document Msg
 view model =
     { title = "Sudoku Trainer"
     , body =
-        [ lazy viewSidebar model.puzzleStatus
+        [ viewSidebar model.puzzleStatus model.selectedCell model.currentPuzzle
         , div [ class "main" ] [ viewPuzzle model.selectedCell model.currentPuzzle ]
         ]
     }
 
 
-viewSidebar : String -> Html Msg
-viewSidebar puzzleStatus =
+viewSidebar : String -> Maybe Coord -> Grid -> Html Msg
+viewSidebar puzzleStatus selectedCoord grid =
+    let
+        selectedText =
+            case selectedCoord of
+                Just coord ->
+                    String.concat
+                        [ "Row "
+                        , String.fromInt (coord.y + 1)
+                        , ", Col "
+                        , String.fromInt (coord.x + 1)
+                        ]
+
+                Nothing ->
+                    "None"
+
+        possibleValues =
+            case selectedCoord of
+                Just coord ->
+                    Grid.getByCoord coord grid
+                        |> Cell.getPossibleInts
+                        |> List.map (\n -> String.fromInt n ++ " ")
+                        |> String.concat
+
+                Nothing ->
+                    "N/A"
+    in
     div [ class "sidebar" ]
         [ h1 [] [ text "Sudoku Trainer" ]
         , button [ onClick ClickedCheckPuzzle ] [ text "Check Puzzle" ]
         , p [ class "puzzle-status" ] [ text puzzleStatus ]
+        , div [ class "cell-info" ]
+            [ p [] [ text ("Selected: " ++ selectedText) ]
+            , p [] [ text ("Possible Values: " ++ possibleValues) ]
+            ]
         ]
 
 
@@ -223,10 +252,10 @@ viewPuzzle : Maybe Coord -> Grid -> Html Msg
 viewPuzzle selectedCoord puzzle =
     let
         viewRow : Int -> List Cell -> Html Msg
-        viewRow x row =
+        viewRow y row =
             tr [] <|
                 List.indexedMap
-                    (\y ->
+                    (\x ->
                         lazy2 viewCell
                             { currentCoord = { x = x, y = y }
                             , selectedCoord = selectedCoord

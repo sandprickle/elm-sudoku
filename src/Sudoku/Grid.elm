@@ -67,6 +67,7 @@ fromString str =
         |> List.map Cell.fromChar
         |> Array.fromList
         |> Grid
+        |> pruneAll
 
 
 
