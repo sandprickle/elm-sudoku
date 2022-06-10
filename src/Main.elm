@@ -105,10 +105,12 @@ handleKeyInput key model =
             Just coord ->
                 ( { model
                     | currentPuzzle =
-                        Grid.setByCoord
-                            coord
-                            model.currentPuzzle
-                            (Cell.fromString keyStr)
+                        Grid.pruneAll
+                            (Grid.setByCoord
+                                coord
+                                model.currentPuzzle
+                                (Cell.fromString keyStr)
+                            )
                   }
                 , Cmd.none
                 )
