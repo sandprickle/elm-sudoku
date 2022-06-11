@@ -3,6 +3,7 @@ module Sudoku.Grid exposing
     , Grid
     , boxCoords
     , colCoords
+    , countNakedSingles
     , fromString
     , getBox
     , getByCoord
@@ -267,6 +268,26 @@ pruneCells cells =
                     cell
     in
     List.map pruneCell cells
+
+
+
+-- Hints
+
+
+countNakedSingles : Grid -> Int
+countNakedSingles (Grid grid) =
+    let
+        nakedSingle cell =
+            case Cell.getPossible cell of
+                Just possible ->
+                    List.length possible == 1
+
+                Nothing ->
+                    False
+    in
+    grid
+        |> Array.filter nakedSingle
+        |> Array.length
 
 
 

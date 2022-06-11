@@ -40,8 +40,14 @@ main =
 type alias Model =
     { currentPuzzle : Grid
     , selectedCell : Maybe Coord
-    , puzzleStatus : String
+    , statusMsg : String
+    , hintResult : String
     }
+
+
+type PuzzleStatus
+    = Valid
+    | Invalid Coord
 
 
 initialPuzzle : String
@@ -53,7 +59,8 @@ initialModel : Model
 initialModel =
     { currentPuzzle = Grid.fromString initialPuzzle
     , selectedCell = Nothing
-    , puzzleStatus = "Not checked"
+    , statusMsg = "Not checked"
+    , hintResult = ""
     }
 
 
@@ -65,6 +72,12 @@ type Msg
     = ClickedCell { x : Int, y : Int }
     | ClickedCheckPuzzle
     | KeyDown RawKey
+    | RequestedHint Pattern
+
+
+type Pattern
+    = NakedSingle
+    | HiddenSingle
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -75,17 +88,36 @@ update msg model =
 
         ClickedCheckPuzzle ->
             let
-                puzzleStatus =
+                statusMsg =
                     if Grid.isLegal model.currentPuzzle then
                         "Puzzle is Legal"
 
                     else
                         "THAT'S ILLEGAL YOU DIMWIT!"
             in
-            ( { model | puzzleStatus = puzzleStatus }, Cmd.none )
+            ( { model | statusMsg = statusMsg }, Cmd.none )
 
         KeyDown key ->
             handleKeyInput key model
+
+        RequestedHint pattern ->
+            ( { model | hintResult = getHint model.currentPuzzle pattern }
+            , Cmd.none
+            )
+
+
+getHint : Grid -> Pattern -> String
+getHint grid pattern =
+    case pattern of
+        NakedSingle ->
+            String.concat
+                [ "I count "
+                , String.fromInt (Grid.countNakedSingles grid)
+                , " naked singles in the current puzzle."
+                ]
+
+        HiddenSingle ->
+            "I don't know how to check for hidden singles yet!"
 
 
 handleKeyInput : RawKey -> Model -> ( Model, Cmd Msg )
@@ -206,14 +238,27 @@ view : Model -> Document Msg
 view model =
     { title = "Sudoku Trainer"
     , body =
-        [ viewSidebar model.puzzleStatus model.selectedCell model.currentPuzzle
+        [ viewSidebar
+            { statusMsg = model.statusMsg
+            , selectedCoord = model.selectedCell
+            , grid = model.currentPuzzle
+            , hintResult = model.hintResult
+            }
         , div [ class "main" ] [ viewPuzzle model.selectedCell model.currentPuzzle ]
         ]
     }
 
 
-viewSidebar : String -> Maybe Coord -> Grid -> Html Msg
-viewSidebar puzzleStatus selectedCoord grid =
+type alias SidebarConfig =
+    { statusMsg : String
+    , selectedCoord : Maybe Coord
+    , hintResult : String
+    , grid : Grid
+    }
+
+
+viewSidebar : SidebarConfig -> Html Msg
+viewSidebar { statusMsg, selectedCoord, hintResult, grid } =
     let
         selectedText =
             case selectedCoord of
@@ -241,11 +286,21 @@ viewSidebar puzzleStatus selectedCoord grid =
     in
     div [ class "sidebar" ]
         [ h1 [] [ text "Sudoku Trainer" ]
-        , button [ onClick ClickedCheckPuzzle ] [ text "Check Puzzle" ]
-        , p [ class "puzzle-status" ] [ text puzzleStatus ]
         , div [ class "cell-info" ]
             [ p [] [ text ("Selected: " ++ selectedText) ]
             , p [] [ text ("Possible Values: " ++ possibleValues) ]
+            ]
+        , div [ class "hints" ]
+            [ h2 [] [ text "Hints" ]
+            , div [ class "hint-btns" ]
+                [ button
+                    [ onClick (RequestedHint NakedSingle) ]
+                    [ text "Naked Single" ]
+                , button
+                    [ onClick (RequestedHint HiddenSingle) ]
+                    [ text "Hidden Single" ]
+                ]
+            , div [ class "hint-result" ] [ text hintResult ]
             ]
         ]
 

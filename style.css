@@ -38,6 +38,14 @@ body {
   margin: 0 0 2rem 0;
 }
 
+.hint-result {
+  margin-top: 2rem;
+  padding: 1rem;
+  font-size: 0.9rem;
+  background: #2a3040;
+  border-radius: 1rem;
+}
+
 .main {
   grid-column-start: 5;
   grid-column-end: span 12;
