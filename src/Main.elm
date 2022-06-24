@@ -6,7 +6,7 @@ import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2)
 import Keyboard exposing (RawKey)
-import Sudoku.Cell as Cell exposing (Cell)
+import Sudoku.CellValue as CellValue exposing (CellValue)
 import Sudoku.Grid as Grid
     exposing
         ( Coord
@@ -16,7 +16,6 @@ import Sudoku.Grid as Grid
         , setByCoord
         , toRows
         )
-import Sudoku.Value as Value exposing (Value)
 
 
 
@@ -141,7 +140,7 @@ handleKeyInput key model =
                             (Grid.setByCoord
                                 coord
                                 model.currentPuzzle
-                                (Cell.fromString keyStr)
+                                (CellValue.fromString keyStr)
                             )
                   }
                 , Cmd.none
@@ -277,7 +276,7 @@ viewSidebar { statusMsg, selectedCoord, hintResult, grid } =
             case selectedCoord of
                 Just coord ->
                     Grid.getByCoord coord grid
-                        |> Cell.getPossibleInts
+                        |> CellValue.getPossibleInts
                         |> List.map (\n -> String.fromInt n ++ " ")
                         |> String.concat
 
@@ -308,7 +307,7 @@ viewSidebar { statusMsg, selectedCoord, hintResult, grid } =
 viewPuzzle : Maybe Coord -> Grid -> Html Msg
 viewPuzzle selectedCoord puzzle =
     let
-        viewRow : Int -> List Cell -> Html Msg
+        viewRow : Int -> List CellValue -> Html Msg
         viewRow y row =
             tr [] <|
                 List.indexedMap
@@ -328,7 +327,7 @@ viewCell :
     { currentCoord : Coord
     , selectedCoord : Maybe Coord
     }
-    -> Cell
+    -> CellValue
     -> Html Msg
 viewCell { currentCoord, selectedCoord } cell =
     let
@@ -351,7 +350,7 @@ viewCell { currentCoord, selectedCoord } cell =
                 ]
             , onClick (ClickedCell (Coord x y))
             ]
-            [ text (Cell.toString cell) ]
+            [ text (CellValue.toString cell) ]
         ]
 
 

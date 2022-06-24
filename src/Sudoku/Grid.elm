@@ -13,7 +13,7 @@ module Sudoku.Grid exposing
     , isLegal
     , pruneAll
     , pruneBoxes
-    , pruneCells
+    , pruneCellValues
     , pruneCols
     , pruneRows
     , removeFixed
@@ -27,8 +27,14 @@ module Sudoku.Grid exposing
 import Array exposing (Array)
 import Html exposing (a)
 import List.Extra exposing (allDifferent)
-import Sudoku.Cell as Cell exposing (Cell, fromChar, fromString, isFilled)
-import Sudoku.Value as Value exposing (Value)
+import Sudoku.CellValue as CellValue
+    exposing
+        ( CellValue
+        , fromChar
+        , fromString
+        , isFilled
+        )
+import Sudoku.Number as Number exposing (Number)
 
 
 type alias Coord =
@@ -36,23 +42,23 @@ type alias Coord =
 
 
 type Grid
-    = Grid (Array Cell)
+    = Grid (Array CellValue)
 
 
-getByCoord : Coord -> Grid -> Cell
+getByCoord : Coord -> Grid -> CellValue
 getByCoord coord (Grid grid) =
-    Array.get (coordToIndex coord) grid |> Maybe.withDefault (Cell.fromString "")
+    Array.get (coordToIndex coord) grid |> Maybe.withDefault (CellValue.fromString "")
 
 
-getByIndex : Int -> Grid -> Cell
+getByIndex : Int -> Grid -> CellValue
 getByIndex index (Grid grid) =
     Array.get (normalizeIndex index) grid
-        |> Maybe.withDefault (Cell.fromString "")
+        |> Maybe.withDefault (CellValue.fromString "")
 
 
-setByCoord : Coord -> Grid -> Cell -> Grid
-setByCoord coord (Grid grid) newCell =
-    Array.set (coordToIndex coord) newCell grid |> Grid
+setByCoord : Coord -> Grid -> CellValue -> Grid
+setByCoord coord (Grid grid) newCellValue =
+    Array.set (coordToIndex coord) newCellValue grid |> Grid
 
 
 
@@ -65,7 +71,7 @@ fromString str =
         |> String.left 81
         |> String.padLeft 81 '.'
         |> String.toList
-        |> List.map Cell.fromChar
+        |> List.map CellValue.fromChar
         |> Array.fromList
         |> Grid
         |> pruneAll
@@ -76,17 +82,17 @@ fromString str =
 -- To Lists of groupings
 
 
-toRows : Grid -> List (List Cell)
+toRows : Grid -> List (List CellValue)
 toRows grid =
     List.map (\n -> getRow n grid) (List.range 0 8)
 
 
-toCols : Grid -> List (List Cell)
+toCols : Grid -> List (List CellValue)
 toCols grid =
     List.map (\n -> getCol n grid) (List.range 0 8)
 
 
-toBoxes : Grid -> List (List Cell)
+toBoxes : Grid -> List (List CellValue)
 toBoxes grid =
     List.map (\n -> getBox n grid) (List.range 0 8)
 
@@ -95,17 +101,17 @@ toBoxes grid =
 -- individual groupings
 
 
-getRow : Int -> Grid -> List Cell
+getRow : Int -> Grid -> List CellValue
 getRow rowNum grid =
     List.map (\coord -> getByCoord coord grid) (rowCoords rowNum)
 
 
-getCol : Int -> Grid -> List Cell
+getCol : Int -> Grid -> List CellValue
 getCol colNum grid =
     List.map (\coord -> getByCoord coord grid) (colCoords colNum)
 
 
-getBox : Int -> Grid -> List Cell
+getBox : Int -> Grid -> List CellValue
 getBox boxNum grid =
     List.map (\coord -> getByCoord coord grid) (boxCoords boxNum)
 
@@ -184,10 +190,10 @@ isLegal grid =
                 |> List.member False
                 |> not
 
-        checkGroup : List Cell -> Bool
+        checkGroup : List CellValue -> Bool
         checkGroup group =
             group
-                |> List.filter Cell.isFilled
+                |> List.filter CellValue.isFilled
                 |> allDifferent
     in
     rowsOk && colsOk && boxesOk
@@ -239,35 +245,35 @@ pruneBoxes grid =
 pruneReducer : List Coord -> Grid -> Grid
 pruneReducer coords grid =
     let
-        fn : ( Coord, Cell ) -> Grid -> Grid
+        fn : ( Coord, CellValue ) -> Grid -> Grid
         fn ( coord, cell ) grid_ =
             setByCoord coord grid_ cell
     in
     coords
         |> List.map (\coord -> getByCoord coord grid)
-        |> pruneCells
+        |> pruneCellValues
         |> List.map2 (\coord cell -> ( coord, cell )) coords
         |> List.foldl fn grid
 
 
-pruneCells : List Cell -> List Cell
-pruneCells cells =
+pruneCellValues : List CellValue -> List CellValue
+pruneCellValues cells =
     let
-        fixedValues =
-            List.filterMap Cell.getValue cells
+        fixedNumbers =
+            List.filterMap CellValue.getNumber cells
 
-        pruneCell : Cell -> Cell
-        pruneCell cell =
-            case Cell.getPossible cell of
+        pruneCellValue : CellValue -> CellValue
+        pruneCellValue cell =
+            case CellValue.getPossible cell of
                 Just values ->
                     values
-                        |> removeFixed fixedValues
-                        |> Cell.fromPossibleValues
+                        |> removeFixed fixedNumbers
+                        |> CellValue.fromPossibleNumbers
 
                 Nothing ->
                     cell
     in
-    List.map pruneCell cells
+    List.map pruneCellValue cells
 
 
 
@@ -278,7 +284,7 @@ countNakedSingles : Grid -> Int
 countNakedSingles (Grid grid) =
     let
         nakedSingle cell =
-            case Cell.getPossible cell of
+            case CellValue.getPossible cell of
                 Just possible ->
                     List.length possible == 1
 
