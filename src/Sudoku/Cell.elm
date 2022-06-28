@@ -1,124 +1,65 @@
 module Sudoku.Cell exposing
     ( Cell
-    , empty
-    , fromChar
-    , fromPossibleValues
-    , fromString
-    , getPossible
-    , getPossibleInts
+    , Highlight(..)
+    , getHighlight
+    , getPrimaryNotes
+    , getSecondaryNotes
     , getValue
-    , isEmpty
-    , isFilled
-    , toString
     )
 
-import Sudoku.Value as Value exposing (Value)
+import Sudoku.CellValue as CellValue exposing (CellValue)
+import Sudoku.Number as Number exposing (Number)
 
 
 type Cell
-    = Empty (List Value)
-    | Filled Value
+    = Cell
+        { value : CellValue
+        , primaryNotes : List Number
+        , secondaryNotes : List Number
+        , highlight : Highlight
+        }
 
 
-allPossibilities : List Value
-allPossibilities =
-    [ Value.one
-    , Value.two
-    , Value.three
-    , Value.four
-    , Value.five
-    , Value.six
-    , Value.seven
-    , Value.eight
-    , Value.nine
-    ]
+type Highlight
+    = Error
+    | None
 
 
-fromChar : Char -> Cell
-fromChar char =
-    case Value.fromChar char of
-        Just value ->
-            Filled value
-
-        Nothing ->
-            Empty allPossibilities
+getValue : Cell -> CellValue
+getValue (Cell cell) =
+    cell.value
 
 
-fromString : String -> Cell
-fromString str =
-    case Value.fromString str of
-        Just value ->
-            Filled value
-
-        Nothing ->
-            Empty allPossibilities
+getPrimaryNotes : Cell -> List Number
+getPrimaryNotes (Cell cell) =
+    cell.primaryNotes
 
 
-fromPossibleValues : List Value -> Cell
-fromPossibleValues values =
-    Empty values
+getSecondaryNotes : Cell -> List Number
+getSecondaryNotes (Cell cell) =
+    cell.secondaryNotes
 
 
-isFilled : Cell -> Bool
-isFilled cell =
-    case cell of
-        Filled _ ->
-            True
-
-        Empty _ ->
-            False
+getHighlight : Cell -> Highlight
+getHighlight (Cell cell) =
+    cell.highlight
 
 
-isEmpty : Cell -> Bool
-isEmpty cell =
-    case cell of
-        Filled _ ->
-            False
-
-        Empty _ ->
-            True
+mapValue : CellValue -> Cell -> Cell
+mapValue value (Cell cell) =
+    Cell { cell | value = value }
 
 
-toString : Cell -> String
-toString cell =
-    case cell of
-        Empty _ ->
-            ""
-
-        Filled value ->
-            Value.toString value
+mapPrimaryNotes : List Number -> Cell -> Cell
+mapPrimaryNotes notes (Cell cell) =
+    Cell { cell | primaryNotes = notes }
 
 
-getValue : Cell -> Maybe Value
-getValue cell =
-    case cell of
-        Filled value ->
-            Just value
-
-        Empty _ ->
-            Nothing
+mapSecondaryNotes : List Number -> Cell -> Cell
+mapSecondaryNotes notes (Cell cell) =
+    Cell { cell | secondaryNotes = notes }
 
 
-getPossible : Cell -> Maybe (List Value)
-getPossible cell =
-    case cell of
-        Empty values ->
-            Just values
-
-        Filled _ ->
-            Nothing
-
-
-getPossibleInts : Cell -> List Int
-getPossibleInts cell =
-    case cell of
-        Empty values ->
-            List.map Value.toInt values
-
-        Filled value ->
-            [ Value.toInt value ]
-
-
-empty : Cell
-empty =
-    Empty allPossibilities
+mapHighlight : Highlight -> Cell -> Cell
+mapHighlight highlight (Cell cell) =
+    Cell { cell | highlight = highlight }
